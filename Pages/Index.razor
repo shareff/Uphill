@@ -1,0 +1,231 @@
+﻿@page "/"
+@page "/uphill"
+@using System.Diagnostics
+@using System.Threading
+
+<h4 class="text-center font-weight-light">@RecordingTime</h4>
+<div class="row no-gutters">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Speed
+            </div>
+            <div class="card-body">
+                @CurrentSpeed
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary" @onclick="DecrementSpeed">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+                <button class="btn btn-primary" @onclick="IncrementSpeed">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Slope
+            </div>
+            <div class="card-body">
+                @Slope
+            </div>
+            <div class="card-body">
+                <button class="btn btn-primary" @onclick="DecrementSlope">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+                <button class="btn btn-primary" @onclick="IncrementSlope">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row no-gutters">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Vertical Speed
+            </div>
+            <div class="card-body">
+                @VerticalSpeed
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Elevation
+            </div>
+            <div class="card-body">
+                @Elevation
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                @RecordingMessage
+            </div>
+            <div class="card-body">
+                @LapRecordingTime
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row no-gutters">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Avg Speed
+            </div>
+            <div class="card-body">
+                @AverageSpeed
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Avg Vert Speed
+            </div>
+            <div class="card-body">
+                @AverageVerticalSpeed
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                Distance
+            </div>
+            <div class="card-body">
+                @Distance
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <button class="btn btn-primary" @onclick="StartStop">@RecordingStatus</button>
+    </div>
+    <div class="col">
+        <button class="btn btn-primary" @onclick="Reset">Reset</button>
+    </div>    
+    <div class="col">
+        <button class="btn btn-primary" @onclick="Lap">Lap</button>
+    </div>
+</div>
+
+@implements IDisposable
+@code {
+    private const int RefreshPeriod = 100;
+    private double _speed = 12;
+    private double _verticalSpeed = 1200;
+    private double _distance;
+    private double _slope;
+    private double _averageSpeed = 0;
+    private double _averageVerticalSpeed = 0;
+    private double _elevation;
+    private bool _isRecording;
+    private readonly Stopwatch _recordingTime = new Stopwatch();
+    private readonly Stopwatch _lapRecordingTime = new Stopwatch();
+    private Timer _timer;
+
+    public string CurrentSpeed => $"{Math.Round(_speed, 1)} km/h";
+    public string VerticalSpeed => $"{Math.Round(_verticalSpeed, 1)} m/h";
+    public string AverageSpeed => $"{Math.Round(_averageSpeed, 1)} km/h";
+    public string AverageVerticalSpeed => $"{Math.Round(_averageVerticalSpeed, 1)} m/h";
+    public string Slope => $"{_slope} %";
+    public string RecordingStatus => _isRecording ? "Stop" : "Start";
+    public string RecordingMessage => _isRecording ? "Started" : "Stopped";
+    public string RecordingTime => _recordingTime.Elapsed.ToString(@"hh\:mm\:ss");
+    public string LapRecordingTime => _lapRecordingTime.Elapsed.ToString(@"hh\:mm\:ss");
+
+    public string Distance => $"{Math.Round(_distance, 1)}";
+    public string Elevation => $"{Math.Round(_elevation, 1)} m";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _timer = new Timer(RecordingCallback, null, 0, RefreshPeriod);
+
+        await base.OnInitializedAsync();
+    }
+    public void StartStop()
+    {
+        _isRecording = !_isRecording;
+        if (_isRecording)
+        {
+            _recordingTime.Start();
+            _lapRecordingTime.Start();
+        }
+        else
+        {
+            _recordingTime.Stop();
+            _lapRecordingTime.Stop();
+        }
+    }
+
+    public void Reset()
+    {
+        if (!_isRecording)
+        {
+            _recordingTime.Reset();
+        }
+    }
+
+    public void Lap()
+    {
+
+        if (!_isRecording)
+        {
+            _lapRecordingTime.Reset();
+        }
+    }
+
+    public void RecordingCallback(object _)
+    {
+        if (_isRecording)
+        {
+            _distance += _speed / 3600 * RefreshPeriod / 1000;
+            _elevation += _verticalSpeed / 3600 * RefreshPeriod / 1000;
+
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void SetVerticalSpeed()
+    {
+        _verticalSpeed = _speed * _slope * 10;
+    }
+    public void IncrementSlope()
+    {
+        _slope += 0.5;
+        SetVerticalSpeed();
+    }
+
+    public void DecrementSlope()
+    {
+        _slope -= 0.5;
+        SetVerticalSpeed();
+    }
+
+    public void IncrementSpeed()
+    {
+        _speed += 0.2;
+        SetVerticalSpeed();
+    }
+
+    public void DecrementSpeed()
+    {
+        _speed -= 0.2;
+        SetVerticalSpeed();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}
