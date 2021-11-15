@@ -12,13 +12,20 @@ jobs:
     # use ubuntu-latest image to run steps on
     runs-on: ubuntu-latest
     steps:
-        # uses GitHub's checkout action to checkout code form the master branch
+    
+    # uses GitHub's checkout action to checkout code form the master branch
     - uses: actions/checkout@v2
+    
     # sets up .NET SDK 5.0
-    - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1.2
+    - name: Set up .NET Core
+      uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0
+        dotnet-version: '5.0.x'
+
+    # new step
+    - name: Add nuget.org as nuget package source
+      run: dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
+
     # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project
       run: dotnet publish Uphill.csproj -c Release -o release --nologo
