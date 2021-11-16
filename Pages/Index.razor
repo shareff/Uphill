@@ -14,10 +14,10 @@
                 @CurrentSpeed
             </div>
             <div class="card-body">
-                <button class="btn btn-primary" @onclick="DecrementSpeed">
+                <button class="btn btn-outline-secondary btn-lg" @onclick="DecrementSpeed">
                     <i class="fas fa-arrow-down"></i>
                 </button>
-                <button class="btn btn-primary" @onclick="IncrementSpeed">
+                <button class="btn btn-outline-secondary btn-lg" @onclick="IncrementSpeed">
                     <i class="fas fa-arrow-up"></i>
                 </button>
             </div>
@@ -32,10 +32,10 @@
                 @Slope
             </div>
             <div class="card-body">
-                <button class="btn btn-primary" @onclick="DecrementSlope">
+                <button class="btn btn-outline-secondary btn-lg" @onclick="DecrementSlope">
                     <i class="fas fa-arrow-down"></i>
                 </button>
-                <button class="btn btn-primary" @onclick="IncrementSlope">
+                <button class="btn btn-outline-secondary btn-lg" @onclick="IncrementSlope">
                     <i class="fas fa-arrow-up"></i>
                 </button>
             </div>
@@ -109,13 +109,13 @@
 
 <div class="row mt-2 no-gutters">
     <div class="col">
-        <button class="btn btn-primary w-100" @onclick="StartStop"><i class="@RecordingStatus"></i></button>
+        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="StartStop"><i class="@RecordingStatus"></i></button>
     </div>
     <div class="col">
-        <button class="btn btn-primary w-100" @onclick="Lap"><i class="fas fa-check-circle"></i></button>
+        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Lap"><i class="fas fa-retweet"></i></button>
     </div>
     <div class="col">
-        <button class="btn btn-primary w-100" @onclick="Reset"><i class="fas fa-recycle"></i></button>
+        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Reset"><i class="fas fa-trash-alt"></i></button>
     </div>
 </div>
 
