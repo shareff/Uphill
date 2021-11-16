@@ -3,17 +3,17 @@
 @using System.Diagnostics
 @using System.Threading
 
-<h3 class="text-center font-weight-light">@RecordingTime</h3>
+<h3 class="text-center font-weight-light"><i class="@RecordingMessage"></i> @RecordingTime</h3>
 <div class="row mt-2 no-gutters">
     <div class="col">
         <div class="card border-light bg-light text-center">
             <div class="card-header">
                 <i class="fas fa-running"></i>
             </div>
-            <div class="card-body">
+            <div class="card-body pb-0">
                 @CurrentSpeed
             </div>
-            <div class="card-body">
+            <div class="card-body py-1">
                 <button class="btn btn-outline-secondary btn-lg" @onclick="DecrementSpeed">
                     <i class="fas fa-arrow-down"></i>
                 </button>
@@ -28,10 +28,10 @@
             <div class="card-header">
                 <i class="fas fa-mountain"></i>
             </div>
-            <div class="card-body">
+            <div class="card-body pb-0">
                 @Slope
             </div>
-            <div class="card-body">
+            <div class="card-body py-1">
                 <button class="btn btn-outline-secondary btn-lg" @onclick="DecrementSlope">
                     <i class="fas fa-arrow-down"></i>
                 </button>
@@ -48,7 +48,7 @@
             <div class="card-header">
                 <i class="fas fa-ruler-vertical"></i>
             </div>
-            <div class="card-body">
+            <div class="card-body py-2">
                 @Elevation
             </div>
         </div>
@@ -58,7 +58,7 @@
             <div class="card-header">
                 <i class="fas fa-plane-departure"></i>
             </div>
-            <div class="card-body">
+            <div class="card-body py-2">
                 @VerticalSpeed
             </div>
         </div>
@@ -66,21 +66,22 @@
     <div class="col">
         <div class="card border-light bg-light text-center">
             <div class="card-header">
-                <i class="@RecordingMessage"></i>
+                @LapCount
             </div>
-            <div class="card-body">
+            <div class="card-body py-2">
                 @LapRecordingTime
             </div>
         </div>
     </div>
 </div>
-<div class="row mt-2 no-gutters">       
+<div class="row mt-2 no-gutters">
     <div class="col">
         <div class="card border-light bg-light text-center">
             <div class="card-header">
-                <i class="fas fa-running"></i><span style="font-size: x-small" class="ml-2 bg-secondary text-white font-weight-light">avg</span>
+                <i class="fas fa-running"></i><span style="font-size: x-small"
+                    class="ml-2 bg-secondary text-white font-weight-light">avg</span>
             </div>
-            <div class="card-body">
+            <div class="card-body py-2">
                 @AverageSpeed
             </div>
         </div>
@@ -88,9 +89,10 @@
     <div class="col">
         <div class="card border-light bg-light text-center">
             <div class="card-header">
-                <i class="fas fa-plane-departure"></i><span style="font-size: x-small" class="ml-2 bg-secondary text-white font-weight-light">avg</span>
+                <i class="fas fa-plane-departure"></i><span style="font-size: x-small"
+                    class="ml-2 bg-secondary text-white font-weight-light">avg</span>
             </div>
-            <div class="card-body">
+            <div class="card-body py-2">
                 @AverageVerticalSpeed
             </div>
         </div>
@@ -100,7 +102,7 @@
             <div class="card-header">
                 <i class="fas fa-ruler-horizontal"></i>
             </div>
-            <div class="card-body">
+            <div class="card-body py-2">
                 @Distance
             </div>
         </div>
@@ -109,43 +111,46 @@
 
 <div class="row mt-2 no-gutters">
     <div class="col">
-        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="StartStop"><i class="@RecordingStatus"></i></button>
+        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="StartStop"><i
+                class="@RecordingStatus"></i></button>
     </div>
     <div class="col">
         <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Lap"><i class="fas fa-retweet"></i></button>
     </div>
     <div class="col">
-        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Reset"><i class="fas fa-trash-alt"></i></button>
+        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Reset"><i
+                class="fas fa-trash-alt"></i></button>
     </div>
 </div>
 
 @implements IDisposable
 @code {
-    private const int RefreshPeriod = 100;
+    private const int RefreshPeriod = 900;
     private double _speed = 12;
-    private double _verticalSpeed = 1200;
+    private double _verticalSpeed;
     private double _distance;
     private double _slope;
     private double _averageSpeed = 0;
     private double _averageVerticalSpeed = 0;
     private double _elevation;
+    private int _lapCount = 1;
     private bool _isRecording;
     private readonly Stopwatch _recordingTime = new Stopwatch();
     private readonly Stopwatch _lapRecordingTime = new Stopwatch();
     private Timer _timer;
 
     public string CurrentSpeed => $"{Math.Round(_speed, 1)} km/h";
-    public string VerticalSpeed => $"{Math.Round(_verticalSpeed, 1)} m/h";
-    public string AverageSpeed => $"{Math.Round(_averageSpeed, 1)} km/h";
-    public string AverageVerticalSpeed => $"{Math.Round(_averageVerticalSpeed, 1)} m/h";
+    public string VerticalSpeed => $"{Math.Round(_verticalSpeed, 1)}";
+    public string AverageSpeed => $"{Math.Round(_averageSpeed, 1)}";
+    public string AverageVerticalSpeed => $"{Math.Round(_averageVerticalSpeed, 1)}";
     public string Slope => $"{_slope} %";
     public string RecordingStatus => _isRecording ? "fas fa-stop" : "fas fa-play";
     public string RecordingMessage => _isRecording ? "fas fa-play" : "fas fa-stop";
     public string RecordingTime => _recordingTime.Elapsed.ToString(@"hh\:mm\:ss");
     public string LapRecordingTime => _lapRecordingTime.Elapsed.ToString(@"hh\:mm\:ss");
-
+    public int LapCount => _lapCount;
     public string Distance => $"{Math.Round(_distance, 1)}";
-    public string Elevation => $"{Math.Round(_elevation, 1)} m";
+    public string Elevation => $"{Math.Round(_elevation, 1)}";
 
     protected override async Task OnInitializedAsync()
     {
@@ -173,15 +178,23 @@
         if (!_isRecording)
         {
             _recordingTime.Reset();
+            _lapRecordingTime.Reset();
+
+            _averageSpeed = 0;
+            _averageVerticalSpeed = 0;
+            _distance = 0;
+            _elevation = 0;
+            _lapCount = 0;
         }
     }
 
     public void Lap()
     {
-
-        if (!_isRecording)
+        if (_isRecording)
         {
             _lapRecordingTime.Reset();
+            _lapRecordingTime.Start();
+            _lapCount++;
         }
     }
 
@@ -189,8 +202,15 @@
     {
         if (_isRecording)
         {
+            var elapsed = _recordingTime.Elapsed.TotalSeconds;
+
+            SetVerticalSpeed();
+
             _distance += _speed / 3600 * RefreshPeriod / 1000;
             _elevation += _verticalSpeed / 3600 * RefreshPeriod / 1000;
+
+            _averageSpeed = _distance/elapsed*3600;
+            _averageVerticalSpeed = _elevation / elapsed*3600;
 
             InvokeAsync(StateHasChanged);
         }
