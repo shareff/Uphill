@@ -9,6 +9,8 @@
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="Uphill.styles.css" rel="stylesheet" />
+    <link href="manifest.json" rel="manifest" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
 </head>
 
 <body>
@@ -21,6 +23,7 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="https://kit.fontawesome.com/3f473a3cd9.js" crossorigin="anonymous"></script>
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
 </body>
 
 </html>
