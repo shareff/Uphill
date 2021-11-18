@@ -118,9 +118,15 @@
         <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Lap"><i class="fas fa-retweet"></i></button>
     </div>
     <div class="col">
-        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Reset"><i
-                class="fas fa-trash-alt"></i></button>
+        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Reset"><i class="fas fa-trash-alt"></i></button>
     </div>
+    <div class="col">
+        <button class="btn btn-outline-secondary w-100 btn-lg" @onclick="Save"><i class="fas fa-save"></i></button>
+    </div>
+</div>
+
+<div class="alert alert-light mt-3 @ActivitySummaryDisplayed" role="alert">
+  @ActivitySummary
 </div>
 
 @implements IDisposable
@@ -135,6 +141,7 @@
     private double _elevation;
     private int _lapCount = 1;
     private bool _isRecording;
+    private bool _isActivitySummaryDisplayed;
     private readonly Stopwatch _recordingTime = new Stopwatch();
     private readonly Stopwatch _lapRecordingTime = new Stopwatch();
     private Timer _timer;
@@ -151,6 +158,8 @@
     public int LapCount => _lapCount;
     public string Distance => $"{Math.Round(_distance, 1)}";
     public string Elevation => $"{Math.Round(_elevation, 1)}";
+    public string ActivitySummaryDisplayed => _isActivitySummaryDisplayed ? string.Empty : "d-none";
+    public string ActivitySummary { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -163,11 +172,13 @@
         _isRecording = !_isRecording;
         if (_isRecording)
         {
+            _isActivitySummaryDisplayed = false;
             _recordingTime.Start();
             _lapRecordingTime.Start();
         }
         else
         {
+            _isActivitySummaryDisplayed = true;
             _recordingTime.Stop();
             _lapRecordingTime.Stop();
         }
@@ -185,6 +196,17 @@
             _distance = 0;
             _elevation = 0;
             _lapCount = 0;
+        }
+    }
+
+    public void Save()
+    {
+        var elapsed = _recordingTime.Elapsed.TotalMinutes < 1 ? $"{Math.Round(_recordingTime.Elapsed.TotalSeconds, 0)}sec" : $"{Math.Round(_recordingTime.Elapsed.TotalMinutes, 0)}min";
+        ActivitySummary = $"{Distance}km - {elapsed} - {Elevation}m - {AverageSpeed}km/h - {AverageVerticalSpeed}m/h";
+
+        if (_isRecording)
+        {
+            StartStop();
         }
     }
 
